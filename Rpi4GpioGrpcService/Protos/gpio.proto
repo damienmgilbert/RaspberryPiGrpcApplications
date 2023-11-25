@@ -6,6 +6,57 @@ package gpio;
 
 service Commander {
   rpc IsPinOpen (IsPinOpenRequest) returns (IsPinOpenReply);
+  rpc OpenPin (OpenPinRequest) returns (OpenPinReply);
+  rpc ClosePin (ClosePinRequest) returns (ClosePinReply);
+  rpc GetPinMode (GetPinModeRequest) returns (GetPinModeReply);
+  rpc SetPinMode (SetPinModeRequest) returns (SetPinModeReply);
+  rpc Read (ReadRequest) returns (ReadReply);
+  rpc Write (WriteRequest) returns (WriteReply);
+  rpc IsPinModeSupported(IsPinModeSupportedRequest) returns (IsPinModeSupportedReply);
+  rpc GetNumberingScheme(GetNumberingSchemeRequest) returns (GetNumberingSchemeReply);
+  rpc GetPinCount(GetPinCountRequest) returns (GetPinCountReply);
+}
+
+message GetPinCountRequest {
+
+}
+
+message GetPinCountReply {
+	int32 pinCount = 1;
+}
+
+message GetNumberingSchemeRequest {
+
+}
+
+message GetNumberingSchemeReply {
+	string numberingScheme = 1;
+}
+
+message IsPinModeSupportedRequest {
+	int32 pinNumber = 1;
+	string pinMode = 2;
+}
+
+message IsPinModeSupportedReply {
+	bool isPinModeSupported = 1;
+}
+
+message ReadRequest {
+  int32 pinNumber = 1;
+}
+
+message ReadReply {
+  string pinValue = 1;
+}
+
+message WriteRequest {
+  int32 pinNumber = 1;
+  string pinValue = 2;
+}
+
+message WriteReply {
+  bool didWrite = 1;
 }
 
 message IsPinOpenRequest {
@@ -13,5 +64,38 @@ message IsPinOpenRequest {
 }
 
 message IsPinOpenReply {
+  bool isPinOpen = 1;
+}
+
+message ClosePinRequest {
+  int32 pinNumber = 1;
+}
+
+message ClosePinReply {
+  bool isPinClosed = 1;
+}
+
+message GetPinModeRequest {
+  int32 pinNumber = 1;
+}
+
+message GetPinModeReply {
+  string pinMode = 1;
+}
+
+message SetPinModeRequest {
+  int32 pinNumber = 1;
+  string pinMode = 2;
+}
+
+message SetPinModeReply {
+  bool isSet = 1;
+}
+
+message OpenPinRequest {
+  int32 pinNumber = 1;
+}
+
+message OpenPinReply {
   bool isPinOpen = 1;
 }
