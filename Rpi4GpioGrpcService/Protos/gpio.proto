@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "Rpi4GpioGrpcService";
+
+package gpio;
+
+service Commander {
+  rpc IsPinOpen (IsPinOpenRequest) returns (IsPinOpenReply);
+}
+
+message IsPinOpenRequest {
+  uint32 pinNumber = 1;
+}
+
+message IsPinOpenReply {
+  bool isPinOpen = 1;
+}
