@@ -1,10 +1,12 @@
+using RaspberryPi4GpioServiceLibrary;
 using Rpi4GpioGrpcService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
-
+builder.Services.AddLogging();
+builder.Services.AddSingleton<GpioService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

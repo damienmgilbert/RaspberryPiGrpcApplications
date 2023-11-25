@@ -9,7 +9,7 @@ service Commander {
 }
 
 message IsPinOpenRequest {
-  uint32 pinNumber = 1;
+  int32 pinNumber = 1;
 }
 
 message IsPinOpenReply {
