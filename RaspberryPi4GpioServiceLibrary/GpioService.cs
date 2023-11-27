@@ -15,7 +15,7 @@ public class GpioService
     {
         this.logger = logger;
         this.gpioController = new GpioController();
-        
+
         OpenAllPins();
 
         this.gpioController.RegisterCallbackForPinValueChangedEvent(23, PinEventTypes.Rising, Pin23CallbackForRisingEdgeValueChanged);
