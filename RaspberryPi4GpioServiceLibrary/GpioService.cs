@@ -15,7 +15,11 @@ public class GpioService
     {
         this.logger = logger;
         this.gpioController = new GpioController();
+        
         OpenAllPins();
+
+        this.gpioController.RegisterCallbackForPinValueChangedEvent(23, PinEventTypes.Rising, Pin23CallbackForRisingEdgeValueChanged);
+        this.gpioController.RegisterCallbackForPinValueChangedEvent(23, PinEventTypes.Falling, Pin23CallbackForFallingEdgeValueChanged);
 
         void OpenAllPins()
         {
@@ -25,6 +29,17 @@ public class GpioService
                 Thread.Sleep(50);
             }
         }
+    }
+    #endregion
+
+    #region Private methods
+    void Pin23CallbackForFallingEdgeValueChanged(object sender, PinValueChangedEventArgs pinValueChangedEventArgs)
+    {
+        this.logger.LogDebug("Value for pin 23 has changed");
+    }
+    void Pin23CallbackForRisingEdgeValueChanged(object sender, PinValueChangedEventArgs pinValueChangedEventArgs)
+    {
+        this.logger.LogDebug("Value for pin 23 has changed");
     }
     #endregion
 

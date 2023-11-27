@@ -16,7 +16,7 @@ public class CommanderService : Commander.CommanderBase
     {
         this.logger = logger;
         this.gpioService = gpioService;
-
+        this.logger.LogDebug("Creating commander service.");
     }
     #endregion
 
