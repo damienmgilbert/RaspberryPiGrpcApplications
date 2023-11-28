@@ -17,6 +17,13 @@ service Commander {
   rpc GetPinCount(GetPinCountRequest) returns (GetPinCountReply);
 }
 
+enum PinModes {
+	PIN_MODES_INPUT = 0;
+	PIN_MODES_OUTPUT = 1;
+	PIN_MODES_INPUT_PULL_DOWN = 2;
+	PIN_MODES_INPUT_PULL_UP = 3;
+}
+
 message GetPinCountRequest {
 
 }
@@ -35,7 +42,7 @@ message GetNumberingSchemeReply {
 
 message IsPinModeSupportedRequest {
 	int32 pinNumber = 1;
-	string pinMode = 2;
+	PinModes pinMode = 2;
 }
 
 message IsPinModeSupportedReply {
@@ -47,12 +54,12 @@ message ReadRequest {
 }
 
 message ReadReply {
-  string pinValue = 1;
+  int32 pinValue = 1;
 }
 
 message WriteRequest {
   int32 pinNumber = 1;
-  string pinValue = 2;
+  int32 pinValue = 2;
 }
 
 message WriteReply {
@@ -80,12 +87,12 @@ message GetPinModeRequest {
 }
 
 message GetPinModeReply {
-  string pinMode = 1;
+  PinModes pinMode = 1;
 }
 
 message SetPinModeRequest {
   int32 pinNumber = 1;
-  string pinMode = 2;
+  PinModes pinMode = 2;
 }
 
 message SetPinModeReply {

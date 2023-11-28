@@ -1,6 +1,7 @@
 using Grpc.Core;
 using RaspberryPi4GpioServiceLibrary;
 using Rpi4GpioGrpcService;
+using System.Device.Gpio;
 
 namespace Rpi4GpioGrpcService.Services;
 public class CommanderService : Commander.CommanderBase
@@ -41,15 +42,15 @@ public class CommanderService : Commander.CommanderBase
     }
     public override async Task<GetPinModeReply> GetPinMode(GetPinModeRequest request, ServerCallContext context)
     {
-        string pinMode = this.gpioService.GetPinMode(request.PinNumber);
+        PinMode pinMode = this.gpioService.GetPinMode(request.PinNumber);
         return await Task.FromResult(new GetPinModeReply
         {
-            PinMode = pinMode
+            PinMode = (PinModes)pinMode
         });
     }
     public override async Task<IsPinModeSupportedReply> IsPinModeSupported(IsPinModeSupportedRequest request, ServerCallContext context)
     {
-        var isPinModeSupported = this.gpioService.IsPinModeSupported(request.PinNumber, request.PinMode);
+        var isPinModeSupported = this.gpioService.IsPinModeSupported(request.PinNumber, (PinMode)request.PinMode);
         return await Task.FromResult(new IsPinModeSupportedReply { IsPinModeSupported = isPinModeSupported });
     }
     public override async Task<IsPinOpenReply> IsPinOpen(IsPinOpenRequest request, ServerCallContext context)
@@ -71,11 +72,11 @@ public class CommanderService : Commander.CommanderBase
     public override async Task<ReadReply> Read(ReadRequest request, ServerCallContext context)
     {
         var pinValue = this.gpioService.Read(request.PinNumber);
-        return await Task.FromResult(new ReadReply { PinValue = pinValue });
+        return await Task.FromResult(new ReadReply { PinValue =  (int)pinValue});
     }
     public override async Task<SetPinModeReply> SetPinMode(SetPinModeRequest request, ServerCallContext context)
     {
-        var isSet = this.gpioService.SetPinMode(request.PinNumber, request.PinMode);
+        var isSet = this.gpioService.SetPinMode(request.PinNumber, (PinMode)request.PinMode);
         return await Task.FromResult(new SetPinModeReply { IsSet = isSet });
     }
     public override async Task<WriteReply> Write(WriteRequest request, ServerCallContext context)
