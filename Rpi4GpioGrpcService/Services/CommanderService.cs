@@ -2,6 +2,11 @@ using Grpc.Core;
 using RaspberryPi4GpioServiceLibrary;
 using Rpi4GpioGrpcService;
 using System.Device.Gpio;
+using GpioPinMode = System.Device.Gpio.PinMode;
+using GrpcPinMode = Rpi4GpioGrpcService.PinMode;
+using GpioEventTypes = System.Device.Gpio.PinEventTypes;
+using GrpcEventTypes = Rpi4GpioGrpcService.PinEventTypes;
+using Google.Protobuf.WellKnownTypes;
 
 namespace Rpi4GpioGrpcService.Services;
 public class CommanderService : Commander.CommanderBase
@@ -21,6 +26,18 @@ public class CommanderService : Commander.CommanderBase
     }
     #endregion
 
+    public override async Task<UnregisterPinCallbackReply> UnregisterPinCallback(UnregisterPinCallbackRequest request, ServerCallContext context)
+    {
+        this.gpioService.UnregisterPinCallback(request.PinNumber, (GpioEventTypes)request.EventType);
+        return await Task.FromResult(new UnregisterPinCallbackReply());
+    }
+
+    public override async Task<RegisterPinCallbackReply> RegisterPinCallback(RegisterPinCallbackRequest request, ServerCallContext context)
+    {
+        this.gpioService.RegisterPinCallback(request.PinNumber, (GpioEventTypes)request.EventType);
+        return await Task.FromResult(new RegisterPinCallbackReply());
+    }
+
     #region Public methods
     public override async Task<ClosePinReply> ClosePin(ClosePinRequest request, ServerCallContext context)
     {
@@ -30,6 +47,12 @@ public class CommanderService : Commander.CommanderBase
             IsPinClosed = result
         });
     }
+
+    //public override async Task PinEvent(Empty request, IServerStreamWriter<PinEventReply> responseStream, ServerCallContext context)
+    //{
+    //    return base.PinEvent(request, responseStream, context);
+    //}
+
     public override async Task<GetNumberingSchemeReply> GetNumberingScheme(GetNumberingSchemeRequest request, ServerCallContext context)
     {
         var numberingScheme = this.gpioService.GetNumberingScheme();
@@ -42,15 +65,15 @@ public class CommanderService : Commander.CommanderBase
     }
     public override async Task<GetPinModeReply> GetPinMode(GetPinModeRequest request, ServerCallContext context)
     {
-        PinMode pinMode = this.gpioService.GetPinMode(request.PinNumber);
+        GpioPinMode pinMode = this.gpioService.GetPinMode(request.PinNumber);
         return await Task.FromResult(new GetPinModeReply
         {
-            PinMode = (PinModes)pinMode
+            PinMode = (GrpcPinMode)pinMode
         });
     }
     public override async Task<IsPinModeSupportedReply> IsPinModeSupported(IsPinModeSupportedRequest request, ServerCallContext context)
     {
-        var isPinModeSupported = this.gpioService.IsPinModeSupported(request.PinNumber, (PinMode)request.PinMode);
+        var isPinModeSupported = this.gpioService.IsPinModeSupported(request.PinNumber, (GpioPinMode)request.PinMode);
         return await Task.FromResult(new IsPinModeSupportedReply { IsPinModeSupported = isPinModeSupported });
     }
     public override async Task<IsPinOpenReply> IsPinOpen(IsPinOpenRequest request, ServerCallContext context)
@@ -76,7 +99,7 @@ public class CommanderService : Commander.CommanderBase
     }
     public override async Task<SetPinModeReply> SetPinMode(SetPinModeRequest request, ServerCallContext context)
     {
-        var isSet = this.gpioService.SetPinMode(request.PinNumber, (PinMode)request.PinMode);
+        var isSet = this.gpioService.SetPinMode(request.PinNumber, (GpioPinMode)request.PinMode);
         return await Task.FromResult(new SetPinModeReply { IsSet = isSet });
     }
     public override async Task<WriteReply> Write(WriteRequest request, ServerCallContext context)

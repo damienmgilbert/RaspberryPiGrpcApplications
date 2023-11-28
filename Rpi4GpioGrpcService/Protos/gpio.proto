@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option csharp_namespace = "Rpi4GpioGrpcService";
-
+import "google/protobuf/empty.proto";
 package gpio;
 
 service Commander {
@@ -15,13 +15,45 @@ service Commander {
   rpc IsPinModeSupported(IsPinModeSupportedRequest) returns (IsPinModeSupportedReply);
   rpc GetNumberingScheme(GetNumberingSchemeRequest) returns (GetNumberingSchemeReply);
   rpc GetPinCount(GetPinCountRequest) returns (GetPinCountReply);
+  rpc RegisterPinCallback(RegisterPinCallbackRequest) returns (RegisterPinCallbackReply);
+  rpc UnregisterPinCallback(UnregisterPinCallbackRequest) returns (UnregisterPinCallbackReply);
+  rpc PinEvent(google.protobuf.Empty) returns (stream PinEventReply);
 }
 
-enum PinModes {
+message PinEventReply {
+	int32 pinNumber = 1;
+	PinEventTypes changeType = 2;
+}
+
+message RegisterPinCallbackRequest {
+	int32 pinNumber = 1;
+	PinEventTypes eventType = 2;
+}
+
+message RegisterPinCallbackReply {
+
+}
+
+message UnregisterPinCallbackRequest {
+	int32 pinNumber = 1;
+	PinEventTypes eventType = 2;
+}
+
+message UnregisterPinCallbackReply {
+
+}
+
+enum PinMode {
 	PIN_MODES_INPUT = 0;
 	PIN_MODES_OUTPUT = 1;
 	PIN_MODES_INPUT_PULL_DOWN = 2;
 	PIN_MODES_INPUT_PULL_UP = 3;
+}
+
+enum PinEventTypes {
+	PIN_EVENT_TYPES_NONE = 0;
+	PIN_EVENT_TYPES_RISING = 1;
+	PIN_EVENT_TYPES_FALLING = 2;
 }
 
 message GetPinCountRequest {
@@ -42,7 +74,7 @@ message GetNumberingSchemeReply {
 
 message IsPinModeSupportedRequest {
 	int32 pinNumber = 1;
-	PinModes pinMode = 2;
+	PinMode pinMode = 2;
 }
 
 message IsPinModeSupportedReply {
@@ -87,12 +119,12 @@ message GetPinModeRequest {
 }
 
 message GetPinModeReply {
-  PinModes pinMode = 1;
+  PinMode pinMode = 1;
 }
 
 message SetPinModeRequest {
   int32 pinNumber = 1;
-  PinModes pinMode = 2;
+  PinMode pinMode = 2;
 }
 
 message SetPinModeReply {

@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Device.Gpio;
+using System.Reflection;
 
 namespace RaspberryPi4GpioServiceLibrary;
 public class GpioService
 {
 
     #region Fields
+    private readonly Dictionary<(int, PinEventTypes), PinChangeEventHandler> callbackDictionary;
     readonly GpioController gpioController;
     readonly ILogger<GpioService> logger;
     #endregion
@@ -15,31 +17,54 @@ public class GpioService
     {
         this.logger = logger;
         this.gpioController = new GpioController();
-
-        OpenAllPins();
-
-        this.gpioController.RegisterCallbackForPinValueChangedEvent(23, PinEventTypes.Rising, Pin23CallbackForRisingEdgeValueChanged);
-        this.gpioController.RegisterCallbackForPinValueChangedEvent(23, PinEventTypes.Falling, Pin23CallbackForFallingEdgeValueChanged);
-
-        void OpenAllPins()
-        {
-            for (int i = 2; i < 28; i++)
-            {
-                this.gpioController.OpenPin(i);
-                Thread.Sleep(50);
-            }
-        }
+        this.callbackDictionary = [];
     }
     #endregion
 
     #region Private methods
-    void Pin23CallbackForFallingEdgeValueChanged(object sender, PinValueChangedEventArgs pinValueChangedEventArgs)
+    private void OpenAllPins()
     {
-        this.logger.LogDebug("Value for pin 23 has changed");
+        for (int i = 2; i < 28; i++)
+        {
+            this.gpioController.OpenPin(i);
+            Thread.Sleep(50);
+        }
     }
-    void Pin23CallbackForRisingEdgeValueChanged(object sender, PinValueChangedEventArgs pinValueChangedEventArgs)
+    /// <summary>
+    /// Method to register a callback on a pin.
+    /// </summary>
+    /// <param name="pinNumber"></param>
+    /// <param name="eventType"></param>
+    public void RegisterPinCallback(int pinNumber, PinEventTypes eventType)
     {
-        this.logger.LogDebug("Value for pin 23 has changed");
+        // Create a lambda expression for the callback
+        PinChangeEventHandler callback = (sender, args) =>
+        {
+            this.logger.LogDebug("Value for pin {PinNumber} has changed with event type of {EventType}", pinNumber, eventType);
+        };
+
+        // Register the callback with the GPIO controller
+        this.gpioController.RegisterCallbackForPinValueChangedEvent(pinNumber, eventType, callback);
+
+        // Store the callback in the dictionary for later reference
+        callbackDictionary[(pinNumber, eventType)] = callback;
+    }
+    /// <summary>
+    /// Method to unregister a callback on a pin.
+    /// </summary>
+    /// <param name="pinNumber"></param>
+    /// <param name="eventType"></param>
+    public void UnregisterPinCallback(int pinNumber, PinEventTypes eventType)
+    {
+        // Check if the callback is in the dictionary
+        if (callbackDictionary.TryGetValue((pinNumber, eventType), out PinChangeEventHandler callback))
+        {
+            // Unregister the callback with the GPIO controller
+            this.gpioController.UnregisterCallbackForPinValueChangedEvent(pinNumber, callback);
+
+            // Remove the callback from the dictionary
+            callbackDictionary.Remove((pinNumber, eventType));
+        }
     }
     #endregion
 
@@ -119,6 +144,20 @@ public class GpioService
             result = false;
         }
         return result;
+    }
+    // Example usage
+    public void SetupCallbacks()
+    {
+        // Register callbacks for pin 23
+        RegisterPinCallback(23, PinEventTypes.Falling);
+        RegisterPinCallback(23, PinEventTypes.Rising);
+
+        // Register callbacks for pin 22
+        RegisterPinCallback(22, PinEventTypes.Falling);
+        RegisterPinCallback(22, PinEventTypes.Rising);
+
+        // Unregister a specific callback (example: pin 23, Falling)
+        UnregisterPinCallback(23, PinEventTypes.Falling);
     }
     public bool Write(int pinNumber, PinValue value)
     {
